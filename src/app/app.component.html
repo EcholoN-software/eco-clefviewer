@@ -1,0 +1,27 @@
+<mat-drawer-container class="drawer-container" autosize>
+  <mat-drawer #drawer mode="side" [opened]="drawerOpen">
+    <div class="drawer">
+      <app-filter [config]="filterConfig" [selectedItems]="selectedItems" (selectedItemsChange)="filteredItems = $event"
+        [(selectedLevels)]="filteredLevels"></app-filter>
+      <div class="darkmode-toggle">
+        <mat-icon>brightness_5</mat-icon>
+        <mat-slide-toggle [checked]="darkMode" (change)="onDarkModeToggle($event)">
+        </mat-slide-toggle>
+        <mat-icon>bedtime</mat-icon>
+      </div>
+    </div>
+  </mat-drawer>
+  <mat-drawer-content class="drawer-content">
+    <div class="button-container">
+      <button mat-mini-fab color="primary" (click)="toggleDrawer()">
+        <mat-icon>filter_alt</mat-icon>
+      </button>
+      <button mat-raised-button style="margin-left: 20px;" (click)="openFile()">Select File</button>
+      <mat-spinner *ngIf="loading" diameter="25"></mat-spinner>
+      <mat-checkbox *ngIf="log && log.length > 0" #watchModeCheckbox class="watch-checkbox"
+        (change)="onWatchModeChange($event)">Watch file</mat-checkbox>
+    </div>
+    <app-viewer [log]="log" [watchMode]="watchMode" [filteredItems]="filteredItems" [filteredLevels]="filteredLevels"
+      (filteredItemsChange)="selectedItems = $event"></app-viewer>
+  </mat-drawer-content>
+</mat-drawer-container>

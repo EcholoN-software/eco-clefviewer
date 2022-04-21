@@ -1,0 +1,36 @@
+name: Main
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    container:
+      image: electronuserland/builder:wine
+      options:
+        --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS_TAG|TRAVIS|TRAVIS_REPO_|TRAVIS_BUILD_|TRAVIS_BRANCH|TRAVIS_PULL_REQUEST_|APPVEYOR_|CSC_|GH_|GITHUB_|BT_|AWS_|STRIP|BUILD_') \
+        --env ELECTRON_CACHE="/root/.cache/electron" \
+        --env ELECTRON_BUILDER_CACHE="/root/.cache/electron-builder" \
+        -v ${PWD}:/project \
+        -v ${PWD##*/}-node-modules:/project/node_modules \
+        -v ~/.cache/electron:/root/.cache/electron \
+        -v ~/.cache/electron-builder:/root/.cache/electron-builder
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run dist
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./dist/*.exe
+            ./dist/*.blockmap
+            ./dist/*.AppImage
+            ./dist/*.deb
+            ./dist/*.snap

@@ -1,0 +1,105 @@
+table {
+    width: 100%;
+}
+
+mat-spinner {
+    display: inline;
+    margin: 20px;
+}
+
+.viewer-wrapper {
+    height: calc(100% - 80px);
+    overflow: hidden;
+}
+
+.top-toolbar {
+    height: 70px;
+}
+
+.search-field {
+    margin: 0 20px;
+}
+
+.filter-button {
+    margin-right: 20px;
+}
+
+.table-container {
+    overflow: auto;
+    height: calc(100% - 130px);
+ }
+
+.bottom-toolbar {
+    justify-content: flex-end;
+    align-items: baseline;
+    font-size: 14px;
+    display: flex;
+    height: 60px;
+}
+
+.mat-paginator {
+    background-color: unset;
+}
+
+.page-input {
+    width: 100px;
+}
+
+.page-amount {
+    margin: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.mat-column-time {
+    width: 10%;
+    padding-right: 20px;
+}
+
+.mat-column-level {
+    width: 5%;
+    padding-right: 20px;
+}
+
+tr.detail-row {
+    height: 0;
+}
+
+tr.element-row:hover,
+tr.element-row:hover + tr.detail-row,
+tr.element-row.expanded-row,
+tr.element-row.expanded-row + tr.detail-row {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+tr.element-row:hover,
+tr.element-row.expanded-row {
+    cursor: pointer;
+}
+
+tr.warning:hover {
+    background-color: rgba(255, 208, 0, 0.3);
+}
+
+tr.error:hover {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+tr.warning,
+tr.element-row.expanded-row.warning {
+    background-color: rgba(255, 208, 0, 0.15);
+}
+
+tr.error,
+tr.element-row.expanded-row.error {
+    background-color: rgba(255, 0, 0, 0.15);
+}
+
+.element-row td {
+    border-bottom-width: 0;
+}
+
+.element-detail {
+    overflow: hidden;
+    display: flex;
+}

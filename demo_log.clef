@@ -1,0 +1,4 @@
+{"@t":"2022-03-02T02:08:13.0327296Z","@m":"Demo logmessage without template", "SourceContext":"Demo.Context.WithoutTemplate","ProcessId":12345,"ThreadId":1}
+{"@t":"2022-03-02T02:08:13.0327296Z","@mt":"Demo logmessage WITH template '{Template}'", "Template":"This is a Template", "SourceContext":"Demo.Context.WithTemplate","ProcessId":12345,"ThreadId":1}
+{"@t":"2022-03-02T07:15:47.6913861Z","@l":"Warning","@mt":"Another Demo Message {TestKey}","TestKey":"With more data","EventId":{"Name":"DemoEvent"},"SourceContext":"Demo.AnotherContext.MuchData","RequestId":"00000000-0000-0000-0000-000000000000","RequestPath":"/request/demo/path/some.json","SpanId":"0000000000000000","TraceId":"00000000000000000000000000000000","ParentId":"0000000000000000","ProcessId":54321,"ThreadId":31}
+

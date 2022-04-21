@@ -1,0 +1,89 @@
+/* You can add global styles to this file, and also import other style files */
+@use "@angular/material" as mat;
+
+@import "@angular/material/theming";
+@import "material-icons/iconfont/material-icons.css";
+
+@include mat.core();
+
+$angular-primary: mat.define-palette(mat.$blue-palette, 500, 100, 900);
+$angular-accent: mat.define-palette(mat.$blue-palette, A200, A100, A400);
+
+$angular-warn: mat.define-palette(mat.$red-palette);
+
+$angular-default-theme: mat.define-light-theme(
+    (
+        color: (
+            primary: $angular-primary,
+            accent: $angular-accent,
+            warn: $angular-warn,
+        ),
+    )
+);
+
+$angular-dark-theme: mat.define-dark-theme(
+    (
+        color: (
+            primary: $angular-primary,
+            accent: $angular-accent,
+            warn: $angular-warn,
+        ),
+    )
+);
+
+@include mat.all-component-themes($angular-default-theme);
+
+.darkMode {
+    @include mat.all-component-colors($angular-dark-theme);
+}
+
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.info-notification {
+    background-color: rgb(0, 100, 0);
+    color: white;
+}
+
+.error-notification {
+    background-color: rgb(100, 0, 0);
+    color: white;
+}
+
+.jsonformat {
+    white-space: pre-wrap;
+}
+
+.darkMode .jsonformat {
+    color: lightgrey;
+}
+
+.jsonformat .string {
+    color: olive;
+}
+
+.jsonformat .key {
+    color: brown;
+}
+
+.jsonformat .number, .jsonformat .boolean, .jsonformat .null {
+    color: navy;
+}
+
+.darkMode .jsonformat .string {
+    color: #98c379;
+}
+
+.darkMode .jsonformat .key {
+    color: #e06c75;
+}
+
+.darkMode .jsonformat .number, .darkMode .jsonformat .boolean, .darkMode .jsonformat .null {
+    color: #d19a66;
+}

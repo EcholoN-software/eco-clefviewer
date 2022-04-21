@@ -1,0 +1,37 @@
+<p>If in one category nothing is selected, no filter gets applied for this category.</p>
+<button class="reset-button" mat-raised-button (click)="resetFilter()">Reset Filter</button>
+<mat-card class="filter-section levels">
+  <mat-card-header>
+    <mat-card-title>Levels</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-checkbox *ngFor="let level of levels" class="level-checkbox" [checked]="selectedLevels.includes(level)"
+      (change)="levelToggle($event)" [value]="level">{{level}}</mat-checkbox>
+  </mat-card-content>
+</mat-card>
+<mat-card class="filter-section contexts">
+  <mat-card-header>
+    <mat-card-title>Contexts</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+      <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
+        <button mat-icon-button disabled></button>
+        <mat-checkbox class="filter-checkbox" [checked]="filterSelection.isSelected(node)"
+          (change)="leafItemSelectionToggle(node)">
+          {{node.item}}</mat-checkbox>
+      </mat-tree-node>
+
+      <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+        <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.item">
+          <mat-icon class="mat-icon-rtl-mirror">
+            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+          </mat-icon>
+        </button>
+        <mat-checkbox class="filter-checkbox" [checked]="descendantsAllSelected(node)"
+          [indeterminate]="descendantsPartiallySelected(node)" (change)="itemSelectionToggle(node)">
+          {{node.item}}</mat-checkbox>
+      </mat-tree-node>
+    </mat-tree>
+  </mat-card-content>
+</mat-card>

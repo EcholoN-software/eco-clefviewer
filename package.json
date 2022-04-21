@@ -1,0 +1,92 @@
+{
+  "name": "eco-clefviewer",
+  "description": "A Logviewer to view and filter logfiles in the .clef format.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Philipp Trautmann",
+    "email": "philipp.trautmann@echolon.de"
+  },
+  "homepage": "https://github.com/EcholoN-software/",
+  "build": {
+    "productName": "Eco Clef Viewer",
+    "appId": "de.eco.clefviewer",
+    "fileAssociations": [
+      {
+        "ext": "clef",
+        "name": "Compact Log Event Format",
+        "role": "Viewer"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "snap",
+        "deb"
+      ],
+      "category": "Development"
+    },
+    "deb": {
+      "fpm": [
+        "--deb-no-default-config-files"
+      ]
+    },
+    "files": [
+      "./dist/eco-clefviewer/*",
+      "./dist/src/**/*",
+      "./dist/app.js"
+    ]
+  },
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build --base-href ./",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "electron:build": "npm run build && tsc ./app.ts --outDir ./dist && electron .",
+    "electron:nobuild": "tsc ./app.ts --outDir ./dist && electron .",
+    "dist:windows": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -w",
+    "dist:linux": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -l",
+    "dist": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wl"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "~13.3.0",
+    "@angular/cdk": "^13.3.1",
+    "@angular/common": "~13.3.0",
+    "@angular/compiler": "~13.3.0",
+    "@angular/core": "~13.3.0",
+    "@angular/forms": "~13.3.0",
+    "@angular/material": "^13.3.1",
+    "@angular/platform-browser": "~13.3.0",
+    "@angular/platform-browser-dynamic": "~13.3.0",
+    "@angular/router": "~13.3.0",
+    "@types/electron": "^1.6.10",
+    "chokidar": "^3.5.3",
+    "material-icons": "^1.10.8",
+    "rxjs": "~7.5.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.11.4"
+  },
+  "devDependencies": {
+    "@angular-builders/custom-webpack": "^13.1.0",
+    "@angular-devkit/build-angular": "~13.3.0",
+    "@angular/cli": "~13.3.0",
+    "@angular/compiler-cli": "~13.3.0",
+    "@types/jasmine": "^3.10.4",
+    "@types/node": "^12.11.1",
+    "electron": "^17.2.0",
+    "electron-builder": "^22.14.13",
+    "jasmine-core": "~4.0.0",
+    "karma": "~6.3.0",
+    "karma-chrome-launcher": "~3.1.0",
+    "karma-coverage": "~2.1.0",
+    "karma-jasmine": "~4.0.0",
+    "karma-jasmine-html-reporter": "~1.7.0",
+    "node-polyfill-webpack-plugin": "^1.1.4",
+    "typescript": "~4.5.2"
+  },
+  "main": "dist/app.js"
+}

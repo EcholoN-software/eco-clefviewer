@@ -1,0 +1,67 @@
+<div class="viewer-wrapper">
+
+  <div class="top-toolbar">
+    <mat-form-field class="search-field" appearance="standard">
+      <mat-label>Filter</mat-label>
+      <input matInput (keydown.enter)="applySearch()" placeholder="Search" #searchInput>
+    </mat-form-field>
+    <button class="filter-button" mat-raised-button (click)="applySearch()">Search</button>
+  </div>
+  <div #tableContainer class="table-container">
+    <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
+
+      <ng-container matColumnDef="time">
+        <th mat-header-cell *matHeaderCellDef>Time</th>
+        <td mat-cell *matCellDef="let element">{{ element.t | date:'fullTime' }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="message">
+        <th mat-header-cell *matHeaderCellDef>Message</th>
+        <td mat-cell *matCellDef="let element">{{element.m}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="level">
+        <th mat-header-cell *matHeaderCellDef>Loglevel</th>
+        <td mat-cell *matCellDef="let element">{{element.l}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+          <div *ngIf="element === expandedElement" class="element-detail" [innerHtml]="element.params | jsonFormat"
+            [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let element; columns: displayedColumns;" class="element-row"
+        [class.warning]="element.l === 'Warning'" [class.error]="element.l === 'Error'"
+        [class.expanded-row]="expandedElement === element"
+        (click)="expandedElement = expandedElement === element ? null : element"
+        (contextmenu)="onRightClick($event, element)">
+      </tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+    </table>
+  </div>
+
+  <div class="bottom-toolbar">
+    <mat-form-field class="page-input" appearance="outline">
+      <mat-label>Current Page</mat-label>
+      <input matInput #pageNumber type="number" [value]="currentPage" (keydown.enter)="changePage(pageNumber.value)">
+    </mat-form-field>
+    <span class="page-amount">
+      <mat-label>/{{pageAmount}}</mat-label>
+    </span>
+    <mat-paginator #paginator (page)="onPageChange($event)" [pageSizeOptions]="[20, 50, 100, 500]" showFirstLastButtons>
+    </mat-paginator>
+  </div>
+
+  <div style="visibility: hidden; position: fixed;" [style.left]="menuTopLeftPosition.x"
+    [style.top]="menuTopLeftPosition.y" [matMenuTriggerFor]="menu"></div>
+
+  <mat-menu #menu="matMenu">
+    <ng-template matMenuContent let-item="item">
+      <button (click)="filterForEndpoint(item)" mat-menu-item>Filter for this Endpoint</button>
+    </ng-template>
+  </mat-menu>
+</div>
