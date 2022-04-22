@@ -1,9 +1,7 @@
-name: On Version Push
+name: Build
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  push
 
 jobs:
   build-and-publish:
@@ -22,6 +20,7 @@ jobs:
               npm run dist
       - name: Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           files: |
             ./dist/*.exe

@@ -1,4 +1,5 @@
 # Eco Clef Viewer
+![build status](https://github.com/EcholoN-software/eco-clefviewer/actions/workflows/main.yml/badge.svg)
 A simple logviewer to view, search and filter logfiles in the [CLEF Format](https://clef-json.org/).
 
 ![Screenshot with list, open item and expanded filter](demo_screenshot.png)
