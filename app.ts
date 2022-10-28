@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, IpcMainEvent } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, IpcMainEvent, crashReporter } from 'electron';
 import { join } from "path";
 import { FSWatcher, watch } from "chokidar";
 import { once } from "events";
@@ -6,6 +6,10 @@ import { createReadStream, existsSync } from "fs";
 import { createInterface } from "readline";
 import { IPCEvent } from './src/app/shared/ipcevents';
 import { createLogMessage, LogMessage } from './src/app/shared/logmessage';
+
+crashReporter.start({
+  uploadToServer: false
+});
 
 let mainWindow: BrowserWindow | null;
 let watcher: FSWatcher;
@@ -152,6 +156,10 @@ async function processLog(path: string, event: IpcMainEvent, change = false) {
         } else if (!change) {
           log.push(createLogMessage(JSON.parse(line)));
           parsedLines++;
+          if (parsedLines % 10000 == 0) {
+            event.sender.send(IPCEvent.FILECHUNK, log);
+            log.length = 0;
+          }
         }
       } catch (err) {
         event.sender.send(IPCEvent.ERROR, err);

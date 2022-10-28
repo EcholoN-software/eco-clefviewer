@@ -28,7 +28,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   @HostBinding('class') className = '';
 
   file: File;
-  log: LogMessage[];
+  log: LogMessage[] = [];
 
   filterConfig: FilterConfig;
   selectedItems: string[] = [];
@@ -41,10 +41,19 @@ export class AppComponent implements OnInit, AfterViewInit {
   drawerOpen = localStorage.getItem(DRAWEROPEN_NAME) != null ? true : false;
 
   constructor(private snackBar: MatSnackBar, private readonly ipcService: IpcService, private zone: NgZone) {
-    this.ipcService.on(IPCEvent.FILELOADED, (event, log) => {
+
+    this.ipcService.on(IPCEvent.FILECHUNK, (event, chunk) => {
       this.zone.run(() => {
-        if (Array.isArray(log) && log.length > 0) {
-          this.log = log;
+        if (Array.isArray(chunk) && chunk.length > 0) {
+          this.log = [...this.log, ...chunk];
+        }
+      });
+    });
+
+    this.ipcService.on(IPCEvent.FILELOADED, (event, lastchunk) => {
+      this.zone.run(() => {
+        if (Array.isArray(lastchunk) && lastchunk.length > 0) {
+          this.log = [...this.log, ...lastchunk];
           this.filterConfig = this.createFilterConfig(this.log);
           this.showMessage(Messages.success_parsing);
           this.loading = false;
