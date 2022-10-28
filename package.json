@@ -1,7 +1,7 @@
 {
   "name": "eco-clefviewer",
   "description": "A Logviewer to view and filter logfiles in the .clef format.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Philipp Trautmann",
     "email": "philipp.trautmann@echolon.de"
