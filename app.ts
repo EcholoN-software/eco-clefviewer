@@ -2,28 +2,33 @@ import { app, BrowserWindow, ipcMain, dialog, IpcMainEvent, crashReporter } from
 import { join } from "path";
 import { FSWatcher, watch } from "chokidar";
 import { once } from "events";
-import { createReadStream, existsSync } from "fs";
+import { createReadStream, existsSync, readFileSync, writeFileSync } from "fs";
 import { createInterface } from "readline";
 import { IPCEvent } from './src/app/shared/ipcevents';
 import { createLogMessage, LogMessage } from './src/app/shared/logmessage';
+
 
 crashReporter.start({
   uploadToServer: false
 });
 
-let mainWindow: BrowserWindow | null;
+const windows = new Set();
+const settingsPath = join(app.getPath('userData'), 'settings.json');
 let watcher: FSWatcher;
 let currentFile: string;
 let parsedLines = 0;
 const title = "Eco Clef Viewer";
 
 function createWindow() {
-  mainWindow = new BrowserWindow({
+
+  let newWindow: BrowserWindow | null = new BrowserWindow({
+    show: false,
     width: 1440,
     height: 810,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      partition: 'inmemory'
     },
     autoHideMenuBar: true,
     title
@@ -32,7 +37,7 @@ function createWindow() {
   const pathname = join(__dirname, `/eco-clefviewer/index.html`);
   const url = `file://${pathname}`;
 
-  mainWindow.loadURL(
+  newWindow.loadURL(
     String(Object.assign(new URL(url), {
       pathname,
       protocol: "file:",
@@ -40,10 +45,21 @@ function createWindow() {
     }))
   );
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-    closeWatcher();
-  })
+  newWindow.webContents.on('did-finish-load', () => {
+    if (!newWindow) {
+      throw new Error('"newWindow" is not defined');
+    }
+    newWindow.show();
+    newWindow.focus();
+  });
+
+  newWindow.on('closed', () => {
+    windows.delete(newWindow);
+    newWindow = null;
+  });
+
+  windows.add(newWindow);
+  return newWindow;
 }
 
 app.on('ready', createWindow);
@@ -53,18 +69,42 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (mainWindow === null) createWindow()
+  if (windows.size === 0) createWindow()
 });
 
 ipcMain.on(IPCEvent.APPREADY, (event) => {
-  if (mainWindow && process.argv.length > 1 && process.argv[1].toLowerCase().endsWith('.clef') && existsSync(process.argv[1])) {
+  // App Version
+  event.sender.send(IPCEvent.APPVERSION, app.getVersion());
+  // Load Settings
+  try {
+    if (existsSync(settingsPath)) {
+      const settings = readFileSync(settingsPath, {encoding: 'utf8'});
+      console.log('settingsPath:', settingsPath);
+      console.log('settings:', settings);
+      if (typeof(settings) === 'string') {
+        event.sender.send(IPCEvent.LOADSETTINGS, JSON.parse(settings));
+      } else {
+        event.sender.send(IPCEvent.ERROR, 'Could not load settings. Wrong Format.');
+      }
+    }
+  } catch (e) {
+    console.error('error while loading settings:', e);
+    event.sender.send(IPCEvent.ERROR, 'Error while loading settings.');
+  }
+  // Load file if argument passed
+  if (windows.size > 0 && process.argv.length > 1 && process.argv[1].toLowerCase().endsWith('.clef') && existsSync(process.argv[1])) {
     openFile(process.argv[1], event);
   }
 });
 
+ipcMain.on(IPCEvent.SAVESETTINGS, (event, settings) => {
+  writeFileSync(settingsPath, JSON.stringify(settings));
+});
+
 ipcMain.on(IPCEvent.OPENFILE, (event) => {
-  if (mainWindow) {
-    dialog.showOpenDialog(mainWindow, {
+  const currentWindow = BrowserWindow.getFocusedWindow();
+  if (currentWindow) {
+    dialog.showOpenDialog(currentWindow, {
       properties: ['openFile'],
       filters: [
         { name: 'CLEF', extensions: ['clef'] }
@@ -105,7 +145,8 @@ ipcMain.on(IPCEvent.UNWATCHFILE, (event) => {
  * @param event IpcMainEvent to use for responses
  */
 function openFile(path: string, event: IpcMainEvent) {
-  mainWindow?.setTitle(`${title} - ${path}`);
+  const currentWindow = BrowserWindow.getFocusedWindow();
+  currentWindow?.setTitle(`${title} - ${path}`);
   currentFile = path;
   event.sender.send(IPCEvent.PARSINGFILE);
   processLog(path, event);

@@ -1,7 +1,7 @@
 <div class="viewer-wrapper">
 
   <div class="top-toolbar">
-    <mat-form-field class="search-field" appearance="standard">
+    <mat-form-field class="search-field" appearance="outline" subscriptSizing="dynamic">
       <mat-label>Filter</mat-label>
       <input matInput (keydown.enter)="applySearch()" placeholder="Search" #searchInput>
     </mat-form-field>
@@ -45,7 +45,7 @@
   </div>
 
   <div class="bottom-toolbar">
-    <mat-form-field class="page-input" appearance="outline">
+    <mat-form-field class="page-input" appearance="outline" subscriptSizing="dynamic">
       <mat-label>Current Page</mat-label>
       <input matInput #pageNumber type="number" [value]="currentPage" (keydown.enter)="changePage(pageNumber.value)">
     </mat-form-field>

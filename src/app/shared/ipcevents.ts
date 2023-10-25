@@ -1,5 +1,8 @@
 export enum IPCEvent {
   APPREADY = 'appready',
+  APPVERSION = 'appversion',
+  LOADSETTINGS = 'loadsettings',
+  SAVESETTINGS = 'savesettings',
   OPENFILE = 'openfile',
   FILELOADED = 'fileloaded',
   FILECHUNK = 'filechunk',
