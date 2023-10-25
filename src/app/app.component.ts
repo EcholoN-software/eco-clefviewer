@@ -51,9 +51,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.ipcService.on(IPCEvent.LOADSETTINGS, (event, settings: AppSettings) => {
       this.zone.run(() => {
         this.appsettings = settings;
-        if (this.appsettings.darkmode) {
-          this.className = DARKMODE_NAME;
-        }
+        this.className = this.appsettings.darkmode ? DARKMODE_NAME : '';
       });
     });
 

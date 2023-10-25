@@ -79,8 +79,6 @@ ipcMain.on(IPCEvent.APPREADY, (event) => {
   try {
     if (existsSync(settingsPath)) {
       const settings = readFileSync(settingsPath, {encoding: 'utf8'});
-      console.log('settingsPath:', settingsPath);
-      console.log('settings:', settings);
       if (typeof(settings) === 'string') {
         event.sender.send(IPCEvent.LOADSETTINGS, JSON.parse(settings));
       } else {
@@ -88,7 +86,7 @@ ipcMain.on(IPCEvent.APPREADY, (event) => {
       }
     }
   } catch (e) {
-    console.error('error while loading settings:', e);
+    console.error('Error while loading settings:', e);
     event.sender.send(IPCEvent.ERROR, 'Error while loading settings.');
   }
   // Load file if argument passed
