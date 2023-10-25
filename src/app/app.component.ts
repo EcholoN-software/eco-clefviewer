@@ -6,6 +6,9 @@ import { FilterConfig } from './filter/filter.component';
 import { IpcService } from './ipc/ipc.service';
 import { IPCEvent } from './shared/ipcevents';
 import { LogMessage } from './shared/logmessage';
+import { AppSettings } from './shared/appsettings';
+
+const DARKMODE_NAME = 'darkMode';
 
 export enum Messages {
   no_log = "No log loaded",
@@ -14,9 +17,6 @@ export enum Messages {
   error = "An error occurred, see console for more info",
   success_parsing = "Log parsed successfully"
 }
-
-const DARKMODE_NAME = 'darkMode';
-const DRAWEROPEN_NAME = 'drawerOpen';
 
 @Component({
   selector: 'app-root',
@@ -37,10 +37,23 @@ export class AppComponent implements OnInit, AfterViewInit {
   levels: string[] = [];
   loading = false;
   watchMode = false;
-  darkMode = localStorage.getItem(DARKMODE_NAME) != null ? true : false;
-  drawerOpen = localStorage.getItem(DRAWEROPEN_NAME) != null ? true : false;
+  appsettings: AppSettings = {darkmode: true, drawerOpen: false};
+  appVersion = "N/A";
 
   constructor(private snackBar: MatSnackBar, private readonly ipcService: IpcService, private zone: NgZone) {
+
+    this.ipcService.on(IPCEvent.APPVERSION, (event, version) => {
+      this.zone.run(() => {
+        this.appVersion = version;
+      });
+    });
+
+    this.ipcService.on(IPCEvent.LOADSETTINGS, (event, settings: AppSettings) => {
+      this.zone.run(() => {
+        this.appsettings = settings;
+        this.className = this.appsettings.darkmode ? DARKMODE_NAME : '';
+      });
+    });
 
     this.ipcService.on(IPCEvent.FILECHUNK, (event, chunk) => {
       this.zone.run(() => {
@@ -99,14 +112,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     document.ondrop = (dragEvent: DragEvent) => {
       dragEvent.preventDefault();
       if (dragEvent.dataTransfer?.files && dragEvent.dataTransfer.files.length > 0) {
-        ipcService.send(IPCEvent.FILEDROP, dragEvent.dataTransfer.files[0].path)
+        ipcService.send(IPCEvent.FILEDROP, dragEvent.dataTransfer.files[0].path);
       }
       return false;
     };
   }
 
   ngOnInit(): void {
-    if (this.darkMode) this.className = DARKMODE_NAME
+    if (this.appsettings.darkmode) this.className = DARKMODE_NAME
   }
 
   ngAfterViewInit(): void {
@@ -171,17 +184,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   onDarkModeToggle(event: MatSlideToggleChange) {
-    if (event.checked) {
-      localStorage.setItem(DARKMODE_NAME, '');
-      this.className = DARKMODE_NAME;
-    } else {
-      this.className = '';
-      localStorage.removeItem(DARKMODE_NAME);
-    }
+    this.className = event.checked ? DARKMODE_NAME : '';
+    this.appsettings.darkmode = event.checked;
+    this.ipcService.send(IPCEvent.SAVESETTINGS, this.appsettings);
   }
 
   toggleDrawer() {
-    this.drawerOpen = !this.drawerOpen;
-    this.drawerOpen ? localStorage.setItem(DRAWEROPEN_NAME, '') : localStorage.removeItem(DRAWEROPEN_NAME);
+    this.appsettings.drawerOpen = !this.appsettings.drawerOpen;
+    this.ipcService.send(IPCEvent.SAVESETTINGS, this.appsettings);
   }
 }

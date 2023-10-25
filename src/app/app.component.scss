@@ -1,10 +1,11 @@
 mat-spinner {
-    margin: 20px;
+    margin: auto 0;
     display: inline;
 }
 
 .button-container {
     margin: 20px;
+    display: flex;
 }
 
 .drawer-container {
@@ -24,7 +25,16 @@ mat-spinner {
     padding: 20px;
 }
 
+.drawer-bottom {
+    display: flex;
+    justify-content: space-between;
+}
+
 .darkmode-toggle {
+    display: flex;
+}
+
+.version-number {
     display: flex;
 }
 
@@ -34,4 +44,8 @@ mat-spinner {
 
 .watch-checkbox {
     margin-left: 20px;
+}
+
+.select-file-button {
+    margin: auto 20px;
 }

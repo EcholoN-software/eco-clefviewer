@@ -13,36 +13,39 @@ mat-spinner {
 }
 
 .top-toolbar {
+    display: flex;
     height: 70px;
 }
 
 .search-field {
-    margin: 0 20px;
+    margin: auto 0 auto 20px;
 }
 
 .filter-button {
-    margin-right: 20px;
+    margin: auto 20px;
 }
 
 .table-container {
     overflow: auto;
-    height: calc(100% - 130px);
+    height: calc(100% - 150px);
  }
 
 .bottom-toolbar {
     justify-content: flex-end;
-    align-items: baseline;
+    align-items: center;
     font-size: 14px;
     display: flex;
-    height: 60px;
+    height: 80px;
 }
 
-.mat-paginator {
+mat-paginator {
+    display: flex;
+    height: 80px;
     background-color: unset;
 }
 
 .page-input {
-    width: 100px;
+    width: 120px;
 }
 
 .page-amount {
