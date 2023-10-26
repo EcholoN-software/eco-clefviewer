@@ -47,10 +47,10 @@
     "test": "ng test",
     "electron:build": "npm run build && tsc ./app.ts --outDir ./dist && electron .",
     "electron:nobuild": "tsc ./app.ts --outDir ./dist && electron .",
-    "dist:windows": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -w",
-    "dist:linux": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -l",
-    "dist:mac": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -m",
-    "dist": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wlm"
+    "dist:windows": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -w -p never",
+    "dist:linux": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -l -p never",
+    "dist:mac": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -m -p never",
+    "dist": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wlm -p never"
   },
   "private": true,
   "dependencies": {
