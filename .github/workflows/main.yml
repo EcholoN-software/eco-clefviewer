@@ -64,6 +64,7 @@ jobs:
   release:
     name: Release
     if: startsWith(github.ref, 'refs/tags/v')
+    needs:  [build-linux-windows, build-mac]
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
