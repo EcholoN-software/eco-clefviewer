@@ -15,7 +15,13 @@ jobs:
           node-version: 16
       - name: directory
         run: ls
-      - name: project directory
-        run: ls /project
       - name: node version
         run: node -v
+      - name: npm install
+        run: npm install
+      - name: dmg license
+        run: npm i dmg-license
+      - name: build
+        run: npm run dist:mac
+      - run: ls
+      - run: ls /dist
