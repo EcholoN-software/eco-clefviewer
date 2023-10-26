@@ -18,6 +18,7 @@ jobs:
           run: |
               cd /project
               npm install
+              npm i dmg-license
               npm run dist:mac
       - name: Release
         uses: softprops/action-gh-release@v1
