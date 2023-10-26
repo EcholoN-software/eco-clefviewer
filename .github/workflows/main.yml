@@ -6,28 +6,16 @@ on:
 jobs:
   build-and-publish:
     name: Build and Publish
-    runs-on: ubuntu-latest      
+    runs-on: macOS-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Run build with docker
-        uses: addnab/docker-run-action@v3
+        uses: actions/checkout@master
+      - uses: actions/setup-node@master
         with:
-          image: electronuserland/builder:wine
-          options: -v ${{ github.workspace }}:/project
-          run: |
-              cd /project
-              npm install
-              npm i dmg-license
-              npm run dist:mac
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/v')
-        with:
-          files: |
-            ./dist/*.exe
-            ./dist/*.blockmap
-            ./dist/*.AppImage
-            ./dist/*.deb
-            ./dist/*.snap
-            ./dist/*.dmg
+          node-version: 16
+      - name: directory
+        run: ls
+      - name: project directory
+        run: ls /project
+      - name: node version
+        run: node -v
