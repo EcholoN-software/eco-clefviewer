@@ -49,7 +49,8 @@
     "electron:nobuild": "tsc ./app.ts --outDir ./dist && electron .",
     "dist:windows": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -w",
     "dist:linux": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -l",
-    "dist": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wl"
+    "dist:mac": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -m",
+    "dist": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wlm"
   },
   "private": true,
   "dependencies": {
