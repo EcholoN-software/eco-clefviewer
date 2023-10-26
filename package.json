@@ -49,6 +49,7 @@
     "electron:nobuild": "tsc ./app.ts --outDir ./dist && electron .",
     "dist:windows": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -w -p never",
     "dist:linux": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -l -p never",
+    "dist:wl": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wl -p never",
     "dist:mac": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -m -p never",
     "dist": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wlm -p never"
   },

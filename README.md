@@ -33,4 +33,6 @@ Here are the npm commands you can use while developing, just use `npm run <comma
 - electron:nobuild: only builds the electon application and runs it without building the frontend again
 - dist:windows: builds the windows binaries
 - dist:linux: builds the linux binaries
+- dist:wl: builds the windows and linux binaries
+- dist:mac: builds the mac binaries
 - dist: build the windows and linux binaries

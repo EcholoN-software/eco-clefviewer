@@ -1,27 +1,82 @@
 name: Build
 
 on:
-  push
+  push:
+    branches:
+      - main
+    tags:        
+      - v*
+  pull_request:
+    branches:    
+      - main
 
 jobs:
-  build-and-publish:
-    name: Build and Publish
+  build-linux-windows:
+    name: Build Linux/Windows
+    runs-on: ubuntu-latest      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run build with docker
+        uses: addnab/docker-run-action@v3
+        with:
+          image: electronuserland/builder:wine
+          options: -v ${{ github.workspace }}:/project
+          run: |
+              cd /project
+              npm install
+              npm run dist:wl
+      - name: Upload Artifacts
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v3
+        with:
+          name: win-lin-bin
+          path: |
+            ./dist/*.exe
+            ./dist/*.blockmap
+            ./dist/*.AppImage
+            ./dist/*.deb
+            ./dist/*.snap
+
+  build-mac:
+    name: Build Mac
     runs-on: macOS-latest
     steps:
       - name: Checkout
         uses: actions/checkout@master
-      - uses: actions/setup-node@master
+      - name: Setup Node
+        uses: actions/setup-node@master
         with:
           node-version: 16
-      - name: directory
-        run: ls
-      - name: node version
-        run: node -v
-      - name: npm install
+      - name: Install dependencies
         run: npm install
-      - name: dmg license
-        run: npm i dmg-license
-      - name: build
+      - name: Run build
         run: npm run dist:mac
-      - run: ls
-      - run: ls ./dist
+      - name: Upload Artifacts
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v3
+        with:
+          name: mac-bin
+          path: |
+            ./dist/*.blockmap
+            ./dist/*.deb
+            ./dist/*.zip
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./win-lin-bin/*.exe
+            ./win-lin-bin/*.blockmap
+            ./win-lin-bin/*.AppImage
+            ./win-lin-bin/*.deb
+            ./win-lin-bin/*.snap
+            ./mac-bin/*.dmg
+            ./mac-bin/*.zip
+            ./mac-bin/*.blockmap
