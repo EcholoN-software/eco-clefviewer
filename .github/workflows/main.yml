@@ -59,8 +59,9 @@ jobs:
           name: mac-bin
           path: |
             ./dist/*.blockmap
-            ./dist/*.deb
+            ./dist/*.dmg
             ./dist/*.zip
+            
   release:
     name: Release
     if: startsWith(github.ref, 'refs/tags/v')
