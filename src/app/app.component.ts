@@ -77,6 +77,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.ipcService.on(IPCEvent.PARSINGFILE, () => {
       this.zone.run(() => {
         this.loading = true;
+        this.log = [];
         this.showMessage(Messages.parsing);
       });
     });
