@@ -1,7 +1,7 @@
 {
   "name": "eco-clefviewer",
   "description": "A Logviewer to view and filter logfiles in the .clef format.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": {
     "name": "Philipp Trautmann",
     "email": "philipp.trautmann@echolon.de"
@@ -47,9 +47,11 @@
     "test": "ng test",
     "electron:build": "npm run build && tsc ./app.ts --outDir ./dist && electron .",
     "electron:nobuild": "tsc ./app.ts --outDir ./dist && electron .",
-    "dist:windows": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -w",
-    "dist:linux": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -l",
-    "dist": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wl"
+    "dist:windows": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -w -p never",
+    "dist:linux": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -l -p never",
+    "dist:wl": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wl -p never",
+    "dist:mac": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -m -p never",
+    "dist": "tsc ./app.ts --outDir ./dist && ng build --base-href ./ && electron-builder -wlm -p never"
   },
   "private": true,
   "dependencies": {

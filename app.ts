@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, IpcMainEvent, crashReporter } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, crashReporter } from 'electron';
 import { join } from "path";
 import { FSWatcher, watch } from "chokidar";
 import { once } from "events";
@@ -12,11 +12,13 @@ crashReporter.start({
   uploadToServer: false
 });
 
-const windows = new Set();
+const windows = new Set<BrowserWindow | null>();
 const settingsPath = join(app.getPath('userData'), 'settings.json');
 let watcher: FSWatcher;
 let currentFile: string;
 let parsedLines = 0;
+let openFilePath: string | null = null;
+let appState: 'starting' | 'ready' | 'nowindow' = 'starting';
 const title = "Eco Clef Viewer";
 
 function createWindow() {
@@ -64,7 +66,23 @@ function createWindow() {
 
 app.on('ready', createWindow);
 
+app.on('open-file', (e, path) => {
+  switch(appState) {
+    case 'ready':
+      macOpenFile(path);
+      break;
+    case 'starting':
+      openFilePath = path;
+      break;
+    case 'nowindow':
+      openFilePath = path;
+      createWindow();
+      break;
+  }
+});
+
 app.on('window-all-closed', () => {
+  appState = 'nowindow';
   if (process.platform !== 'darwin') app.quit();
 });
 
@@ -91,8 +109,14 @@ ipcMain.on(IPCEvent.APPREADY, (event) => {
   }
   // Load file if argument passed
   if (windows.size > 0 && process.argv.length > 1 && process.argv[1].toLowerCase().endsWith('.clef') && existsSync(process.argv[1])) {
-    openFile(process.argv[1], event);
+    openFile(process.argv[1], event.sender);
+  } else if (openFilePath) {
+    if (appState === 'nowindow' || appState === 'starting') {
+      macOpenFile(openFilePath);
+      openFilePath = null;
+    }
   }
+  appState = 'ready';
 });
 
 ipcMain.on(IPCEvent.SAVESETTINGS, (event, settings) => {
@@ -109,7 +133,7 @@ ipcMain.on(IPCEvent.OPENFILE, (event) => {
       ],
     }).then(result => {
       if (!result.canceled && result.filePaths.length > 0) {
-        openFile(result.filePaths[0], event);
+        openFile(result.filePaths[0], event.sender);
       }
     });
   }
@@ -117,7 +141,7 @@ ipcMain.on(IPCEvent.OPENFILE, (event) => {
 
 ipcMain.on(IPCEvent.FILEDROP, (event, path) => {
   if (typeof path === 'string' && path.toLowerCase().endsWith('.clef') && existsSync(path)) {
-    openFile(path, event);
+    openFile(path, event.sender);
   } else {
     event.sender.send(IPCEvent.ERROR, 'Filetype unsupported or file does not exist.');
   }
@@ -126,15 +150,28 @@ ipcMain.on(IPCEvent.FILEDROP, (event, path) => {
 ipcMain.on(IPCEvent.WATCHFILE, (event) => {
   if (currentFile != null) {
     watcher = watch(currentFile, { usePolling: true, interval: 1000 });
-    watcher.on('change', () => processLog(currentFile, event, true));
+    watcher.on('change', () => processLog(currentFile, event.sender, true));
   }
 });
 
 ipcMain.on(IPCEvent.UNWATCHFILE, (event) => {
   if (currentFile != null) {
-    closeWatcher(event);
+    closeWatcher(event.sender);
   }
 });
+
+/**
+ * Opens a file from the open-file event on macOS.
+ * Tries getting focused window, otherwise gets first available window.
+ * @param path Path of the file to open
+ */
+function macOpenFile(path: string) {
+  let sender: BrowserWindow = BrowserWindow.getFocusedWindow() || windows.size > 0 ? windows.values().next().value : createWindow();
+  if (sender.isMinimized()) {
+    sender.show();
+  }
+  openFile(path, sender.webContents);
+}
 
 /**
  * Triggers file parsing, sets window title, saves current file path
@@ -142,24 +179,24 @@ ipcMain.on(IPCEvent.UNWATCHFILE, (event) => {
  * @param path Filepath
  * @param event IpcMainEvent to use for responses
  */
-function openFile(path: string, event: IpcMainEvent) {
+function openFile(path: string, sender: Electron.WebContents) {
   const currentWindow = BrowserWindow.getFocusedWindow();
   currentWindow?.setTitle(`${title} - ${path}`);
   currentFile = path;
-  event.sender.send(IPCEvent.PARSINGFILE);
-  processLog(path, event);
+  sender.send(IPCEvent.PARSINGFILE);
+  processLog(path, sender);
 }
 
 /**
  * Closes the filewatcher if it exists
  * @param event IpcMainEvent to use for error reporting
  */
-function closeWatcher(event?: IpcMainEvent) {
+function closeWatcher(sender?: Electron.WebContents) {
   if (watcher instanceof FSWatcher) {
     watcher.close().catch(err => {
       console.error(err);
-      if (event != null) {
-        event.sender.send(IPCEvent.ERROR, err);
+      if (sender != null) {
+        sender.send(IPCEvent.ERROR, err);
       }
     });
   }
@@ -172,7 +209,7 @@ function closeWatcher(event?: IpcMainEvent) {
  * @param event IpcMainEvent to use for response
  * @param change True if it is a filechange, false if it is a initial parsing
  */
-async function processLog(path: string, event: IpcMainEvent, change = false) {
+async function processLog(path: string, sender: Electron.WebContents, change = false) {
   if (!change) {
     parsedLines = 0;
   }
@@ -196,12 +233,12 @@ async function processLog(path: string, event: IpcMainEvent, change = false) {
           log.push(createLogMessage(JSON.parse(line)));
           parsedLines++;
           if (parsedLines % 10000 == 0) {
-            event.sender.send(IPCEvent.FILECHUNK, log);
+            sender.send(IPCEvent.FILECHUNK, log);
             log.length = 0;
           }
         }
       } catch (err) {
-        event.sender.send(IPCEvent.ERROR, err);
+        sender.send(IPCEvent.ERROR, err);
       }
     });
 
@@ -209,8 +246,8 @@ async function processLog(path: string, event: IpcMainEvent, change = false) {
 
     const used = process.memoryUsage().heapUsed / 1024 / 1024;
     console.log(`Memory usage approximately ${Math.round(used * 100) / 100} MB`);
-    event.sender.send(change ? IPCEvent.FILECHANGE : IPCEvent.FILELOADED, log);
+    sender.send(change ? IPCEvent.FILECHANGE : IPCEvent.FILELOADED, log);
   } catch (err) {
-    event.sender.send(IPCEvent.ERROR, err);
+    sender.send(IPCEvent.ERROR, err);
   }
 };
